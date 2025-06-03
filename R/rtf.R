@@ -14,8 +14,10 @@ new_rtf_block <- function(file = character(), ...) {
     stopifnot(
       length(file) == 1L,
       is.character(file),
-      file %in% list_rtf_files()
+      file %in% names(list_rtf_files())
     )
+
+    file <- list_rtf_files()[file]
   }
 	
   new_data_block(
@@ -54,7 +56,10 @@ new_rtf_block <- function(file = character(), ...) {
 
           list(
             expr = reactive(
-              bquote(artful::rtf_to_ard(.(file)), list(file = input$file))
+              bquote(
+                suppressMessages(artful::rtf_to_ard(.(file))),
+                list(file = input$file)
+              )
             ),
             state = list(file = reactive(input$file))
           )
