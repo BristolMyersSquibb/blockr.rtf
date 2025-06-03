@@ -23,6 +23,35 @@ new_rtf_block <- function(file = character(), ...) {
       moduleServer(
         id,
         function(input, output, session) {
+
+          addResourcePath(
+            prefix = "rtf_previews",
+            directoryPath = pkg_file("extdata")
+          )
+
+          observeEvent(
+            input$preview,
+            {
+              req(input$file)
+
+              file <- basename(input$file)
+
+              showModal(
+                modalDialog(
+                  title = paste("PDF preview of", file),
+                  tags$embed(
+                    src = paste0("rtf_previews/", sub("\\.rtf$", ".pdf", file)),
+                    type = "application/pdf",
+                    width = "100%",
+                    height = "500px"
+                  ),
+                  size = "xl",
+                  easyClose = TRUE
+                )
+              )
+            }
+          )
+
           list(
             expr = reactive(
               bquote(artful::rtf_to_ard(.(file)), list(file = input$file))
@@ -33,11 +62,18 @@ new_rtf_block <- function(file = character(), ...) {
       )
     },
     function(id) {
-      selectInput(
-        inputId = NS(id, "file"),
-        label = "File",
-        choices = list_rtf_files(),
-        selected = file
+      tagList(
+        selectInput(
+          inputId = NS(id, "file"),
+          label = "File",
+          choices = list_rtf_files(),
+          selected = file
+        ),
+        actionButton(
+          NS(id, "preview"),
+          "Preview",
+          class = "btn-primary"
+        )
       )
     },
     class = "rtf_block",
