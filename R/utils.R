@@ -1,7 +1,7 @@
-list_rtf_files <- function() {
+list_rtf_files <- function(dir = pkg_file("extdata")) {
 
 	res <- list.files(
-    pkg_file("extdata"),
+    dir,
     pattern = "\\.rtf$",
     full.names = TRUE
   )
@@ -10,3 +10,4 @@ list_rtf_files <- function() {
 
   res
 }
+

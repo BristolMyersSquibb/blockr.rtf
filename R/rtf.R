@@ -3,22 +3,36 @@
 #' This block allows to make read and parse an RTF file to an ARD formatted
 #' `data.frame`.
 #'
-#' @param file File name
+#' @param file File name (in [base::basename()] sense)
+#' @param directory Directory where `file` is located
 #' @param ... Forwarded to [new_block()]
 #'
 #' @rdname rtf
 #' @export
-new_rtf_block <- function(file = character(), ...) {
+new_rtf_block <- function(file = character(), directory = character(), ...) {
+
+  if (!length(directory)) {
+    directory <- blockr_option("rtf_dir", pkg_file("extdata"))
+  }
+
+  stopifnot(dir.exists(directory))
+
+  files <- list_rtf_files(directory)
 
   if (length(file)) {
+
     stopifnot(
       length(file) == 1L,
       is.character(file),
-      file %in% names(list_rtf_files())
+      file %in% names(files)
     )
 
-    file <- list_rtf_files()[file]
+    file <- files[file]
   }
+
+  has_previews <- any(
+    file.exists(sub("\\.rtf$", ".pdf", files))
+  )
 	
   new_data_block(
     function(id) {
@@ -26,33 +40,66 @@ new_rtf_block <- function(file = character(), ...) {
         id,
         function(input, output, session) {
 
-          addResourcePath(
-            prefix = "rtf_previews",
-            directoryPath = pkg_file("extdata")
+          conds <- reactiveValues(
+            error = character(),
+            warning = character(),
+            message = character()
           )
 
-          observeEvent(
-            input$preview,
-            {
-              req(input$file)
+          if (!length(files)) {
+            conds$error <- paste0(
+              "No .rtf files found under \"", directory, "\""
+            )
+          }
 
-              file <- basename(input$file)
+          if (has_previews) {
 
-              showModal(
-                modalDialog(
-                  title = paste("PDF preview of", file),
-                  tags$embed(
-                    src = paste0("rtf_previews/", sub("\\.rtf$", ".pdf", file)),
-                    type = "application/pdf",
-                    width = "100%",
-                    height = "500px"
-                  ),
-                  size = "xl",
-                  easyClose = TRUE
-                )
-              )
-            }
-          )
+            addResourcePath(
+              prefix = "rtf_previews",
+              directoryPath = directory
+            )
+
+            observeEvent(
+              input$file,
+              {
+                if (length(conds$warning)) {
+                  conds$warning <- character()
+                }
+              }
+            )
+
+            observeEvent(
+              input$preview,
+              {
+                req(input$file)
+
+                file <- basename(input$file)
+                prev <- sub("\\.rtf$", ".pdf", file)
+
+                if (file.exists(file.path(directory, prev))) {
+
+                  showModal(
+                    modalDialog(
+                      title = paste("PDF preview of", file),
+                      tags$embed(
+                        src = paste0("rtf_previews/", prev),
+                        type = "application/pdf",
+                        width = "100%",
+                        height = "500px"
+                      ),
+                      size = "xl",
+                      easyClose = TRUE
+                    )
+                  )
+
+                } else {
+                  conds$warning <- paste(
+                    "No preview available for ", file
+                  )
+                }
+              }
+            )
+          }
 
           list(
             expr = reactive(
@@ -61,7 +108,11 @@ new_rtf_block <- function(file = character(), ...) {
                 list(file = input$file)
               )
             ),
-            state = list(file = reactive(input$file))
+            state = list(
+              file = reactive(input$file),
+              directory = directory
+            ),
+            cond = conds
           )
         }
       )
@@ -71,14 +122,16 @@ new_rtf_block <- function(file = character(), ...) {
         selectInput(
           inputId = NS(id, "file"),
           label = "File",
-          choices = list_rtf_files(),
+          choices = files,
           selected = file
         ),
-        actionButton(
-          NS(id, "preview"),
-          "Preview",
-          class = "btn-primary"
-        )
+        if (has_previews) {
+          actionButton(
+            NS(id, "preview"),
+            "Preview",
+            class = "btn-primary"
+          )
+        }
       )
     },
     class = "rtf_block",

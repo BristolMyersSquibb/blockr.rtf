@@ -4,10 +4,12 @@
 \alias{new_rtf_block}
 \title{Read and parse RTF files}
 \usage{
-new_rtf_block(file = character(), ...)
+new_rtf_block(file = character(), directory = character(), ...)
 }
 \arguments{
-\item{file}{File name}
+\item{file}{File name (in \code{\link[base:basename]{base::basename()}} sense)}
+
+\item{directory}{Directory where \code{file} is located}
 
 \item{...}{Forwarded to \code{\link[=new_block]{new_block()}}}
 }
