@@ -16,6 +16,8 @@ Imports:
     utils,
     blockr.core,
     artful,
+    stateful,
     shiny
 Remotes:
-    cynkra/artful
+    cynkra/artful,
+    BristolMyersSquibb/stateful

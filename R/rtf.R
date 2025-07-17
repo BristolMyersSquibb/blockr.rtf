@@ -5,15 +5,16 @@
 #'
 #' @param file File name (in [base::basename()] sense)
 #' @param directory Directory where `file` is located
+#' @param parser RTF parser to use
 #' @param ... Forwarded to [new_block()]
 #'
 #' @rdname rtf
 #' @export
-new_rtf_block <- function(file = character(), directory = character(), ...) {
-
-  if (!length(directory)) {
-    directory <- blockr_option("rtf_dir", pkg_file("extdata"))
-  }
+new_rtf_block <- function(
+  file = character(),
+  directory = blockr_option("rtf_dir", pkg_file("extdata")),
+  parser = blockr_option("rtf_parser", "artful"),
+  ...) {
 
   stopifnot(dir.exists(directory))
 
@@ -104,7 +105,19 @@ new_rtf_block <- function(file = character(), directory = character(), ...) {
           list(
             expr = reactive(
               bquote(
-                suppressMessages(artful::rtf_to_ard(.(file))),
+                switch(
+                  match.arg(parser, c("artful", "stateful")),
+                  artful = {
+                    suppressMessages(
+                      artful::rtf_to_ard(.(file))
+                    )
+                  },
+                  stateful = {
+                    stateful::state_table_to_ard(
+                      stateful::parse_rtf_table_states(.(file))
+                    )
+                  }
+                ),
                 list(file = input$file)
               )
             ),
