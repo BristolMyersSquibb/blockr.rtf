@@ -11,7 +11,7 @@
 new_topline_block <- function(
   table = character(),
   directory = blockr_option(
-    "rtf_dir",
+    "topline_dir",
     system.file("extdata", "examples", package = "artful")
   ),
   ...) {
