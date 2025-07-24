@@ -123,7 +123,8 @@ new_rtf_block <- function(
             ),
             state = list(
               file = reactive(input$file),
-              directory = directory
+              directory = directory,
+              parser = parser
             ),
             cond = conds
           )
