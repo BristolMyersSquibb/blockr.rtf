@@ -14,14 +14,17 @@ new_topline_block <- function(
     "topline_dir",
     system.file("extdata", "examples", package = "artful")
   ),
+  script = blockr_option(
+    "topline_script",
+    system.file("scripts", "topline-slides-tables.R", package = "artful")
+  ),
   ...) {
 
   fun_env <- new.env()
 
-  source(
-    system.file("scripts", "topline-demo-app.R", package = "artful"),
-    local = fun_env
-  )
+  if (file.exists(script)) {
+    source(script, local = fun_env)
+  }
 
   funs <- ls(envir = fun_env, pattern = "^rt_")
 
@@ -55,7 +58,11 @@ new_topline_block <- function(
             message = character()
           )
 
-          if (!dir.exists(directory)) {
+          if (!file.exists(script)) {
+            conds$error <- paste0(
+              "Script \"", script, "\" does not exists."
+            )
+          } else if (!dir.exists(directory)) {
             conds$error <- paste0(
               "Directory \"", directory, "\" does not exists."
             )
@@ -99,7 +106,8 @@ new_topline_block <- function(
             ),
             state = list(
               file = sel,
-              directory = directory
+              directory = directory,
+              script = script
             ),
             cond = conds
           )
