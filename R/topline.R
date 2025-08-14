@@ -28,10 +28,14 @@ new_topline_block <- function(
 
   funs <- ls(envir = fun_env, pattern = "^rt_")
 
-  files <- set_names(
-    paste0(gsub("_", "-", funs), ".rtf"),
-    funs
-  )
+  if (length(funs)) {
+    files <- set_names(
+      paste0(gsub("_", "-", funs), ".rtf"),
+      funs
+    )
+  } else {
+    files <- character()
+  }
 
   names(funs) <- unname(files)
 
