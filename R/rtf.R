@@ -16,9 +16,11 @@ new_rtf_block <- function(
   parser = blockr_option("rtf_parser", "artful"),
   ...) {
 
-  stopifnot(dir.exists(directory))
-
-  files <- list_rtf_files(directory)
+  if (dir.exists(directory)) {
+    files <- list_rtf_files(directory)
+  } else {
+    files <- character()
+  }
 
   if (length(file)) {
 
@@ -47,7 +49,11 @@ new_rtf_block <- function(
             message = character()
           )
 
-          if (!length(files)) {
+          if (!dir.exists(directory)) {
+            conds$error <- paste0(
+              "Directory \"", directory, "\" does not exists."
+            )
+          } else if (!length(files)) {
             conds$error <- paste0(
               "No .rtf files found under \"", directory, "\""
             )
