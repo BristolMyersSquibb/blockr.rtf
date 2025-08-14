@@ -9,7 +9,7 @@
 #'
 #' @export
 new_topline_block <- function(
-  table = character(),
+  file = character(),
   directory = blockr_option(
     "topline_dir",
     system.file("extdata", "examples", package = "artful")
@@ -19,23 +19,25 @@ new_topline_block <- function(
   fun_env <- new.env()
 
   source(
-    system.file("scripts", "topline-slide-tables.R", package = "artful"),
+    system.file("scripts", "topline-demo-app.R", package = "artful"),
     local = fun_env
   )
 
   funs <- ls(envir = fun_env, pattern = "^rt_")
 
   files <- set_names(
-    file.path(directory, paste0(gsub("_", "-", funs), ".rtf")),
+    paste0(gsub("_", "-", funs), ".rtf"),
     funs
   )
 
-  if (length(table)) {
+  names(funs) <- unname(files)
+
+  if (length(file)) {
 
     stopifnot(
-      length(table) == 1L,
-      is.character(table),
-      table %in% funs
+      length(file) == 1L,
+      is.character(file),
+      file %in% files
     )
   }
 
@@ -44,6 +46,8 @@ new_topline_block <- function(
       moduleServer(
         id,
         function(input, output, session) {
+
+          root <- c(topline = directory)
 
           conds <- reactiveValues(
             error = character(),
@@ -55,25 +59,46 @@ new_topline_block <- function(
             conds$error <- paste0(
               "Directory \"", directory, "\" does not exists."
             )
-          } else if (!all(file.exists(files))) {
+          } else if (!all(file.exists(file.path(directory, files)))) {
             conds$error <- paste0(
               "Expected files are missing from \"", directory, "\"."
             )
           }
+
+          sel <- reactiveVal(file)
+
+          shinyFiles::shinyFileChoose(input, "file", roots = root)
+
+          cur <- reactive(
+            shinyFiles::parseFilePaths(root, input$file)$datapath
+          )
+
+          observeEvent(
+            cur(),
+            {
+              req(cur())
+              if (basename(cur()) %in% files) {
+                conds$warning <- character()
+                sel(basename(cur()))
+              } else {
+                conds$warning <- paste0("Cannot process this file.")
+              }
+            }
+          )
 
           list(
             expr = reactive(
               bquote(
                 .(fun)(.(file)),
                 list(
-                  fun = get(input$table, envir = fun_env, mode = "function",
+                  fun = get(funs[sel()], envir = fun_env, mode = "function",
                             inherits = FALSE),
-                  file = files[input$table]
+                  file = file.path(directory, sel())
                 )
               )
             ),
             state = list(
-              table = reactive(input$table),
+              file = sel,
               directory = directory
             ),
             cond = conds
@@ -82,13 +107,11 @@ new_topline_block <- function(
       )
     },
     function(id) {
-      tagList(
-        selectInput(
-          inputId = NS(id, "table"),
-          label = "Table",
-          choices = funs,
-          selected = table
-        )
+      shinyFiles::shinyFilesButton(
+        NS(id, "file"),
+        label = "File select",
+        title = "Please select a file",
+        multiple = FALSE
       )
     },
     class = "topline_block",
