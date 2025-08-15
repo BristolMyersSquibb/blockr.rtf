@@ -5,18 +5,20 @@
 \title{Read and parse Topline demo RTF files}
 \usage{
 new_topline_block(
-  table = character(),
-  directory = blockr_option("rtf_dir", system.file("extdata", "examples", package =
+  file = character(),
+  directory = blockr_option("topline_dir", system.file("extdata", "examples", package =
     "artful")),
+  script = blockr_option("topline_script", system.file("scripts",
+    "topline-slides-tables.R", package = "artful")),
   ...
 )
 }
 \arguments{
-\item{table}{Table name}
-
 \item{directory}{Directory where corresponding table is located}
 
 \item{...}{Forwarded to \code{\link[=new_block]{new_block()}}}
+
+\item{table}{Table name}
 }
 \description{
 This block allows to make read and parse specific RTF files shared as part

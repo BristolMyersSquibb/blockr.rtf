@@ -12,36 +12,24 @@
 #' @export
 new_rtf_block <- function(
   file = character(),
-  directory = blockr_option("rtf_dir", pkg_file("extdata")),
+  directory = blockr_option(
+    "topline_dir",
+    system.file("extdata", "examples", package = "artful")
+  ),
   parser = blockr_option("rtf_parser", "artful"),
   ...) {
 
-  if (dir.exists(directory)) {
-    files <- list_rtf_files(directory)
-  } else {
-    files <- character()
-  }
-
   if (length(file)) {
-
-    stopifnot(
-      length(file) == 1L,
-      is.character(file),
-      file %in% names(files)
-    )
-
-    file <- files[file]
+    stopifnot(length(file) == 1L, is.character(file))
   }
 
-  has_previews <- any(
-    file.exists(sub("\\.rtf$", ".pdf", files))
-  )
-	
   new_data_block(
     function(id) {
       moduleServer(
         id,
         function(input, output, session) {
+
+          root <- c(files = directory)
 
           conds <- reactiveValues(
             error = character(),
@@ -53,82 +41,49 @@ new_rtf_block <- function(
             conds$error <- paste0(
               "Directory \"", directory, "\" does not exists."
             )
-          } else if (!length(files)) {
-            conds$error <- paste0(
-              "No .rtf files found under \"", directory, "\""
+          } else if (!file %in% list.files(directory)) {
+            conds$warning <- paste0(
+              "No file \"", file, "\" found under \"", directory, "\"."
             )
           }
 
-          if (has_previews) {
+          sel <- reactiveVal(file)
 
-            addResourcePath(
-              prefix = "rtf_previews",
-              directoryPath = directory
-            )
+          shinyFiles::shinyFileChoose(input, "file", roots = root)
 
-            observeEvent(
-              input$file,
-              {
-                if (length(conds$warning)) {
-                  conds$warning <- character()
-                }
-              }
-            )
+          cur <- reactive(
+            shinyFiles::parseFilePaths(root, input$file)$datapath
+          )
 
-            observeEvent(
-              input$preview,
-              {
-                req(input$file)
-
-                file <- basename(input$file)
-                prev <- sub("\\.rtf$", ".pdf", file)
-
-                if (file.exists(file.path(directory, prev))) {
-
-                  showModal(
-                    modalDialog(
-                      title = paste("PDF preview of", file),
-                      tags$embed(
-                        src = paste0("rtf_previews/", prev),
-                        type = "application/pdf",
-                        width = "100%",
-                        height = "500px"
-                      ),
-                      size = "xl",
-                      easyClose = TRUE
-                    )
-                  )
-
-                } else {
-                  conds$warning <- paste(
-                    "No preview available for ", file
-                  )
-                }
-              }
-            )
-          }
+          observeEvent(
+            cur(),
+            {
+              req(cur())
+              conds$warning <- character()
+              sel(basename(cur()))
+            }
+          )
 
           list(
-            expr = reactive(
-              bquote(
-                switch(
-                  match.arg(parser, c("artful", "stateful")),
-                  artful = {
-                    suppressMessages(
-                      artful::rtf_to_ard(.(file))
-                    )
-                  },
-                  stateful = {
-                    stateful::state_table_to_ard(
-                      stateful::parse_rtf_table_states(.(file))
-                    )
-                  }
-                ),
-                list(file = input$file)
+            expr = switch(
+              match.arg(parser, c("artful", "stateful")),
+              artful = reactive(
+                bquote(
+                  artful::rtf_to_ard(.(file)),
+                  list(file = file.path(directory, sel()))
+                )
+              ),
+              stateful = reactive(
+                bquote(
+                  stateful::state_table_to_ard(
+                    stateful::parse_rtf_table_states(.(file))
+                  ),
+                  list(file = file.path(directory, sel()))
+                )
               )
             ),
             state = list(
-              file = reactive(input$file),
+              file = sel,
               directory = directory,
               parser = parser
             ),
@@ -138,20 +93,11 @@ new_rtf_block <- function(
       )
     },
     function(id) {
-      tagList(
-        selectInput(
-          inputId = NS(id, "file"),
-          label = "File",
-          choices = files,
-          selected = file
-        ),
-        if (has_previews) {
-          actionButton(
-            NS(id, "preview"),
-            "Preview",
-            class = "btn-primary"
-          )
-        }
+      shinyFiles::shinyFilesButton(
+        NS(id, "file"),
+        label = "File select",
+        title = "Please select a file",
+        multiple = FALSE
       )
     },
     class = "rtf_block",
