@@ -16,7 +16,7 @@ new_topline_block <- function(
   ),
   script = blockr_option(
     "topline_script",
-    system.file("scripts", "topline-slides-tables.R", package = "artful")
+    system.file("scripts", "topline-slide-tables.R", package = "artful")
   ),
   ...) {
 
