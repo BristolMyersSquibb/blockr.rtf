@@ -6,7 +6,8 @@
 \usage{
 new_rtf_block(
   file = character(),
-  directory = blockr_option("rtf_dir", pkg_file("extdata")),
+  directory = blockr_option("topline_dir", system.file("extdata", "examples", package =
+    "artful")),
   parser = blockr_option("rtf_parser", "artful"),
   ...
 )

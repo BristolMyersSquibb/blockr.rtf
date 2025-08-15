@@ -1,4 +1,4 @@
-#' Read and parse Topline demo RTF files to ARD
+#' Read and parse Topline demo RTF files to CARD
 #'
 #' This block allows to make read and parse specific RTF files shared as part
 #' of an example topline slide deck.
@@ -8,7 +8,7 @@
 #' @param ... Forwarded to [new_block()]
 #'
 #' @export
-new_topline_block <- function(
+new_card_block <- function(
   file = character(),
   directory = blockr_option(
     "topline_dir",
@@ -18,7 +18,7 @@ new_topline_block <- function(
 
   script <- system.file(
     "scripts",
-    "topline-slide-tables.R",
+    "topline-demo-app.R",
     package = "artful"
   )
 
@@ -128,7 +128,7 @@ new_topline_block <- function(
         multiple = FALSE
       )
     },
-    class = "topline_block",
+    class = "card_block",
     ...
   )
 }
