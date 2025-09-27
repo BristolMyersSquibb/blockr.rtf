@@ -6,6 +6,9 @@
 #' @param file File name (in [base::basename()] sense)
 #' @param directory Directory where `file` is located
 #' @param parser RTF parser to use
+#' @param pivot Logical, whether to pivot the grouping variables to long format.
+#'   Default is TRUE to maintain backward compatibility. When FALSE, the data
+#'   remains in wide format with grouping variables as columns.
 #' @param ... Forwarded to [new_block()]
 #'
 #' @rdname rtf
@@ -17,6 +20,7 @@ new_rtf_block <- function(
     system.file("extdata", "examples", package = "artful")
   ),
   parser = blockr_option("rtf_parser", "artful"),
+  pivot = TRUE,
   ...) {
 
   if (length(file)) {
@@ -41,15 +45,20 @@ new_rtf_block <- function(
             conds$error <- paste0(
               "Directory \"", directory, "\" does not exists."
             )
-          } else if (!file %in% list.files(directory)) {
+          } else if (length(file) && !file %in% list.files(directory)) {
             conds$warning <- paste0(
               "No file \"", file, "\" found under \"", directory, "\"."
             )
           }
 
           sel <- reactiveVal(file)
+          piv <- reactiveVal(pivot)
 
           shinyFiles::shinyFileChoose(input, "file", roots = root)
+
+          observeEvent(input$pivot, {
+            piv(input$pivot)
+          })
 
           cur <- reactive(
             shinyFiles::parseFilePaths(root, input$file)$datapath
@@ -69,8 +78,8 @@ new_rtf_block <- function(
               match.arg(parser, c("artful", "stateful")),
               artful = reactive(
                 bquote(
-                  artful::rtf_to_ard(.(file)),
-                  list(file = file.path(directory, sel()))
+                  artful::rtf_to_ard(.(file), pivot = .(pivot)),
+                  list(file = file.path(directory, sel()), pivot = piv())
                 )
               ),
               stateful = reactive(
@@ -85,7 +94,8 @@ new_rtf_block <- function(
             state = list(
               file = sel,
               directory = directory,
-              parser = parser
+              parser = parser,
+              pivot = piv
             ),
             cond = conds
           )
@@ -93,11 +103,18 @@ new_rtf_block <- function(
       )
     },
     function(id) {
-      shinyFiles::shinyFilesButton(
-        NS(id, "file"),
-        label = "File select",
-        title = "Please select a file",
-        multiple = FALSE
+      shiny::tagList(
+        shinyFiles::shinyFilesButton(
+          NS(id, "file"),
+          label = "File select",
+          title = "Please select a file",
+          multiple = FALSE
+        ),
+        shiny::checkboxInput(
+          NS(id, "pivot"),
+          label = "Pivot to long format",
+          value = pivot
+        )
       )
     },
     class = "rtf_block",

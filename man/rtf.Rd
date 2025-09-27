@@ -9,6 +9,7 @@ new_rtf_block(
   directory = blockr_option("topline_dir", system.file("extdata", "examples", package =
     "artful")),
   parser = blockr_option("rtf_parser", "artful"),
+  pivot = TRUE,
   ...
 )
 }
@@ -18,6 +19,10 @@ new_rtf_block(
 \item{directory}{Directory where \code{file} is located}
 
 \item{parser}{RTF parser to use}
+
+\item{pivot}{Logical, whether to pivot the grouping variables to long format.
+Default is TRUE to maintain backward compatibility. When FALSE, the data
+remains in wide format with grouping variables as columns.}
 
 \item{...}{Forwarded to \code{\link[=new_block]{new_block()}}}
 }
