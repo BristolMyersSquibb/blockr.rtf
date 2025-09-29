@@ -28,3 +28,8 @@ removing headers, footers, empty columns, etc., are performed). Unlike
 \code{new_rtf_block()}, this function does not attempt to produce an ARD. Instead,
 this step is off-loaded to other functions.
 }
+\examples{
+\dontrun{
+blockr.core::serve(new_rtf_to_df_block(file = "rt-ae-ae1.rtf"))
+}
+}

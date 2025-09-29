@@ -126,6 +126,11 @@ new_rtf_block <- function(
 #' @param ... Forwarded to [new_block()]
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' blockr.core::serve(new_rtf_to_df_block(file = "rt-ae-ae1.rtf"))
+#' }
 new_rtf_to_df_block <- function(
   file = character(),
   directory = blockr_option(
