@@ -19,7 +19,7 @@ new_rtf_block(
 
 \item{parser}{RTF parser to use}
 
-\item{...}{Forwarded to \code{\link[=new_block]{new_block()}}}
+\item{...}{Forwarded to \code{\link[blockr.core:new_block]{blockr.core::new_block()}}}
 }
 \description{
 This block allows to make read and parse an RTF file to an ARD formatted
