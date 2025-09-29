@@ -17,8 +17,8 @@ new_rtf_block <- function(
     system.file("extdata", "examples", package = "artful")
   ),
   parser = blockr_option("rtf_parser", "artful"),
-  ...) {
-
+  ...
+) {
   if (length(file)) {
     stopifnot(length(file) == 1L, is.character(file))
   }
@@ -28,7 +28,6 @@ new_rtf_block <- function(
       moduleServer(
         id,
         function(input, output, session) {
-
           root <- c(files = directory)
 
           conds <- reactiveValues(
@@ -39,11 +38,17 @@ new_rtf_block <- function(
 
           if (!dir.exists(directory)) {
             conds$error <- paste0(
-              "Directory \"", directory, "\" does not exists."
+              "Directory \"",
+              directory,
+              "\" does not exists."
             )
           } else if (!file %in% list.files(directory)) {
             conds$warning <- paste0(
-              "No file \"", file, "\" found under \"", directory, "\"."
+              "No file \"",
+              file,
+              "\" found under \"",
+              directory,
+              "\"."
             )
           }
 

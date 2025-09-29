@@ -1,4 +1,5 @@
-register_rtf_blocks <- function() { # nocov start
+register_rtf_blocks <- function() {
+  # nocov start
   register_blocks(
     c(
       "new_rtf_block",
@@ -26,7 +27,6 @@ register_rtf_blocks <- function() { # nocov start
 }
 
 .onLoad <- function(libname, pkgname) {
-
   register_rtf_blocks()
 
   invisible(NULL)
