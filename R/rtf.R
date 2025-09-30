@@ -144,11 +144,18 @@ new_rtf_to_df_block <- function(
   }
 
   ui <- function(id) {
-    shinyFiles::shinyFilesButton(
-      NS(id, "file"),
-      label = "File select",
-      title = "Please select a file",
-      multiple = FALSE
+    tagList(
+      shinyFiles::shinyFilesButton(
+        NS(id, "file"),
+        label = "File select",
+        title = "Please select a file",
+        multiple = FALSE
+      ),
+      checkboxInput(
+        NS(id, "checkbox"),
+        "Convert indentation to variables?",
+        FALSE
+      )
     )
   }
 
@@ -200,8 +207,17 @@ new_rtf_to_df_block <- function(
         list(
           expr = reactive(
             bquote(
-              artful::rtf_to_df(.(file)),
-              list(file = file.path(directory, sel()))
+              {
+                df <- artful::rtf_to_df(.(file))
+                if (.(checkbox_state)) {
+                  df <- artful::indentation_to_variables(df)
+                }
+                df
+              },
+              list(
+                file = file.path(directory, sel()),
+                checkbox_state = input$checkbox
+              )
             )
           ),
           state = list(
