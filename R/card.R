@@ -14,8 +14,8 @@ new_card_block <- function(
     "topline_dir",
     system.file("extdata", "examples", package = "artful")
   ),
-  ...) {
-
+  ...
+) {
   script <- system.file(
     "scripts",
     "topline-demo-app.R",
@@ -42,7 +42,6 @@ new_card_block <- function(
   names(funs) <- unname(files)
 
   if (length(file)) {
-
     stopifnot(
       length(file) == 1L,
       is.character(file),
@@ -55,7 +54,6 @@ new_card_block <- function(
       moduleServer(
         id,
         function(input, output, session) {
-
           root <- c(topline = directory)
 
           conds <- reactiveValues(
@@ -66,15 +64,21 @@ new_card_block <- function(
 
           if (!file.exists(script)) {
             conds$error <- paste0(
-              "Script \"", script, "\" does not exists."
+              "Script \"",
+              script,
+              "\" does not exists."
             )
           } else if (!dir.exists(directory)) {
             conds$error <- paste0(
-              "Directory \"", directory, "\" does not exists."
+              "Directory \"",
+              directory,
+              "\" does not exists."
             )
           } else if (!all(file.exists(file.path(directory, files)))) {
             conds$error <- paste0(
-              "Expected files are missing from \"", directory, "\"."
+              "Expected files are missing from \"",
+              directory,
+              "\"."
             )
           }
 
@@ -104,8 +108,12 @@ new_card_block <- function(
               bquote(
                 .(fun)(.(file)),
                 list(
-                  fun = get(funs[sel()], envir = fun_env, mode = "function",
-                            inherits = FALSE),
+                  fun = get(
+                    funs[sel()],
+                    envir = fun_env,
+                    mode = "function",
+                    inherits = FALSE
+                  ),
                   file = file.path(directory, sel())
                 )
               )

@@ -2,6 +2,7 @@
 
 export(new_card_block)
 export(new_rtf_block)
+export(new_rtf_to_df_block)
 export(new_topline_block)
 import(blockr.core)
 import(shiny)

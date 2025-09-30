@@ -14,7 +14,7 @@ new_topline_block(
 \arguments{
 \item{directory}{Directory where corresponding table is located}
 
-\item{...}{Forwarded to \code{\link[=new_block]{new_block()}}}
+\item{...}{Forwarded to \code{\link[blockr.core:new_block]{blockr.core::new_block()}}}
 
 \item{table}{Table name}
 }
