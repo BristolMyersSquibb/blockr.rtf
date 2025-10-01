@@ -30,7 +30,7 @@ library(blockr.topline)
 options(blockr.topline_dir = "~/bms-local/topline-examples")
 stopifnot(dir.exists(blockr.core::blockr_option("topline_dir", "")))
 
-blockr.core::serve(new_rtf_to_df_block(file = "rt-ae-ae1.rtf"))
+# blockr.core::serve(new_rtf_to_df_block(file = "rt-ae-ae1.rtf"))
 
 blockr.core::serve(
   blockr.ui::new_dag_board(
