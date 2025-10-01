@@ -122,7 +122,9 @@ new_rtf_block <- function(
 #'
 #' @param file File name (in [base::basename()] sense)
 #' @param directory Directory where `file` is located
-#' @param parser RTF parser to use
+#' @param indentation_to_vars Logical; if `TRUE` (default), converts indentation
+#'   in the RTF table to explicit variables by calling
+#'   [artful::indentation_to_variables()].
 #' @param ... Forwarded to [new_block()]
 #'
 #' @export
@@ -137,6 +139,7 @@ new_rtf_to_df_block <- function(
     "topline_dir",
     system.file("extdata", "examples", package = "artful")
   ),
+  indentation_to_vars = TRUE,
   ...
 ) {
   if (length(file)) {
@@ -152,9 +155,9 @@ new_rtf_to_df_block <- function(
         multiple = FALSE
       ),
       checkboxInput(
-        NS(id, "checkbox"),
-        "Convert indentation to variables?",
-        FALSE
+        NS(id, "indentation_to_vars"),
+        "Convert indentation to variables",
+        indentation_to_vars
       )
     )
   }
@@ -188,8 +191,13 @@ new_rtf_to_df_block <- function(
         }
 
         sel <- reactiveVal(file)
+        r_indentation_to_vars <- reactiveVal(indentation_to_vars)
 
         shinyFiles::shinyFileChoose(input, "file", roots = root)
+
+        observeEvent(input$indentation_to_vars, {
+          r_indentation_to_vars(input$indentation_to_vars)
+        })
 
         cur <- reactive(
           shinyFiles::parseFilePaths(root, input$file)$datapath
@@ -209,20 +217,21 @@ new_rtf_to_df_block <- function(
             bquote(
               {
                 df <- artful::rtf_to_df(.(file))
-                if (.(checkbox_state)) {
+                if (.(indentation_to_vars)) {
                   df <- artful::indentation_to_variables(df)
                 }
                 df
               },
               list(
                 file = file.path(directory, sel()),
-                checkbox_state = input$checkbox
+                indentation_to_vars = r_indentation_to_vars()
               )
             )
           ),
           state = list(
             file = sel,
-            directory = directory
+            directory = directory,
+            indentation_to_vars = r_indentation_to_vars
           ),
           cond = conds
         )

@@ -8,6 +8,7 @@ new_rtf_to_df_block(
   file = character(),
   directory = blockr_option("topline_dir", system.file("extdata", "examples", package =
     "artful")),
+  indentation_to_vars = TRUE,
   ...
 )
 }
@@ -16,9 +17,11 @@ new_rtf_to_df_block(
 
 \item{directory}{Directory where \code{file} is located}
 
-\item{...}{Forwarded to \code{\link[blockr.core:new_block]{blockr.core::new_block()}}}
+\item{indentation_to_vars}{Logical; if \code{TRUE} (default), converts indentation
+in the RTF table to explicit variables by calling
+\code{\link[artful:indentation_to_variables]{artful::indentation_to_variables()}}.}
 
-\item{parser}{RTF parser to use}
+\item{...}{Forwarded to \code{\link[=new_block]{new_block()}}}
 }
 \description{
 This block reads and parses an RTF file into a \code{data.frame} object. The
