@@ -10,12 +10,15 @@ library(blockr.topline)
 # pak::pak("BristolMyersSquibb/artful", upgrade = TRUE, ask = FALSE)
 # pak::pak("BristolMyersSquibb/blockr.rtf", upgrade = TRUE, ask = FALSE)
 
-library(dplyr)
+# library(dplyr)
+
+pkgload::load_all()
 options(blockr.topline_dir = "~/bms-local/topline-examples")
 stopifnot(dir.exists(blockr.core::blockr_option("topline_dir", "")))
-# blockr.core::serve(blockr.core::new_board(
-#     blocks = blockr.rtf::new_card_block("rt-ae-ae1.rtf")
-# ))
+
+# single block example
+# blockr.core::serve(new_rtf_to_df_block(file = "rt-dm-demo.rtf"))
+# blockr.core::serve(new_rtf_to_df_block())
 
 blockr.core::serve(
   blockr.ui::new_dag_board(

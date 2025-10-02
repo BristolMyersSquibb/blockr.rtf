@@ -42,7 +42,7 @@ new_rtf_block <- function(
               directory,
               "\" does not exists."
             )
-          } else if (!file %in% list.files(directory)) {
+          } else if (length(file) && !file %in% list.files(directory)) {
             conds$warning <- paste0(
               "No file \"",
               file,
@@ -180,7 +180,7 @@ new_rtf_to_df_block <- function(
             directory,
             "\" does not exists."
           )
-        } else if (!file %in% list.files(directory)) {
+        } else if (length(file) && !file %in% list.files(directory)) {
           conds$warning <- paste0(
             "No file \"",
             file,
