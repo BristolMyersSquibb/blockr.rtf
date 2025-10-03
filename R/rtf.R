@@ -166,7 +166,6 @@ new_rtf_to_df_block <- function(
     moduleServer(
       id,
       function(input, output, session) {
-        root <- c(files = directory)
 
         conds <- reactiveValues(
           error = character(),
@@ -175,20 +174,29 @@ new_rtf_to_df_block <- function(
         )
 
         if (!dir.exists(directory)) {
+
           conds$error <- paste0(
             "Directory \"",
             directory,
             "\" does not exists."
           )
-        } else if (length(file) && !file %in% list.files(directory)) {
-          conds$warning <- paste0(
-            "No file \"",
-            file,
-            "\" found under \"",
-            directory,
-            "\"."
-          )
+
+        } else {
+
+          directory <- normalizePath(directory)
+
+          if (length(file) && !file %in% list.files(directory)) {
+            conds$warning <- paste0(
+              "No file \"",
+              file,
+              "\" found under \"",
+              directory,
+              "\"."
+            )
+          }
         }
+
+        root <- c(files = directory)
 
         sel <- reactiveVal(file)
         r_indentation_to_vars <- reactiveVal(indentation_to_vars)
@@ -208,7 +216,7 @@ new_rtf_to_df_block <- function(
           {
             req(cur())
             conds$warning <- character()
-            sel(basename(cur()))
+            sel(sub(paste0("^", directory, "/"), "", normalizePath(cur())))
           }
         )
 
